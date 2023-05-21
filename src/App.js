@@ -1,23 +1,17 @@
-import logo from './logo.svg';
-import './App.css';
+import {useDispatch, useSelector} from "react-redux";
+import {updateBook} from "./store/reducers/bookList-reducer";
 
 function App() {
+    const shipsList = useSelector((state) => state.books);
+    const dispatch = useDispatch();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <input value={shipsList.book}
+             type="text"
+             onChange={(e) => {
+                 dispatch(updateBook(e.target.value))
+             }}/>
     </div>
   );
 }
