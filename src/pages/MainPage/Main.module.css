@@ -1,0 +1,47 @@
+.main {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+.main__buttonsWrap {
+    position: relative;
+}
+.main__buttons {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 100%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+.main__buttons h1 {
+    color: #26a9e0;
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+.main__buttons button {
+    border-radius: 10px;
+    border: 3px solid #26a9e0;
+    background: #26a9e0;
+    color: white;
+    padding: 10px 20px;
+    width: 30%;
+    font-weight: bold;
+}
+.main__buttons button:hover {
+    border: 3px solid #26a9e0;
+    background: white;
+    color: #26a9e0;
+}
+.main__imgWrap {
+    position: relative;
+    width: 100%;
+    background: #26a9e0;
+}
+.main__imgWrap img {
+    position: absolute;
+    width: 50%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
