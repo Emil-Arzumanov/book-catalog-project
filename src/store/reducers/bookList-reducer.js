@@ -31,13 +31,24 @@ const bookListSlice = createSlice({
     initialState: {
         isLibraryReceived: false,
         books: null,
-        chosenFilter: "",
+        chosenFilter: "year",
+        isAddBookMenuVisible: false,
+        addBookMenuInputs: {
+            title: "",
+            authors:[],
+            year: "",
+            rating: "",
+            ISBN: "",
+        },
     },
     reducers: {
         updateFilter(state, action) {
             if (state.isLibraryReceived === "fulfilled")
                 state.chosenFilter = action.payload;
         },
+        updateIsAddBookMenuVisible(state) {
+            state.isAddBookMenuVisible = ! state.isAddBookMenuVisible;
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(getBooksForLibrary.fulfilled, (state, action) => {
@@ -56,6 +67,7 @@ const bookListSlice = createSlice({
 
 const { actions, reducer } = bookListSlice
 export const {
-    updateFilter
+    updateFilter,
+    updateIsAddBookMenuVisible
 } = actions
 export default reducer

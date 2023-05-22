@@ -1,8 +1,9 @@
 import {useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {getBooksForLibrary, updateFilter} from "../../store/reducers/bookList-reducer";
+import {getBooksForLibrary, updateFilter, updateIsAddBookMenuVisible} from "../../store/reducers/bookList-reducer";
 import cl from "./BookList.module.css"
 import BookListElement from "./BookListElement/BookListElement";
+import BookRedactor from "./BookRedactor/BookRedactor";
 
 const BookList = () => {
     const booksSlice = useSelector((state) => state.books);
@@ -35,11 +36,18 @@ const BookList = () => {
                     </section>
                 </section>
                 <section className={cl.sectionsWrap__addBook}>
-                    <button>ADD BOOK</button>
+                    <button onClick={() => {
+                        dispatch(updateIsAddBookMenuVisible())
+                    }}>ADD BOOK</button>
                 </section>
                 {
                     booksSlice.books
                         ? <BookListElement/>
+                        : ""
+                }
+                {
+                    booksSlice.isAddBookMenuVisible
+                        ? <BookRedactor/>
                         : ""
                 }
             </section>
