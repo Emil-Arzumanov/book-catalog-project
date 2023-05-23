@@ -1,6 +1,11 @@
 import {useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {getBooksForLibrary, updateFilter, updateIsAddBookMenuVisible} from "../../store/reducers/bookList-reducer";
+import {
+    addBookToLibrary,
+    getBooksForLibrary,
+    updateFilter,
+    updateIsAddBookMenuVisible
+} from "../../store/reducers/bookList-reducer";
 import cl from "./BookList.module.css"
 import BookListElement from "./BookListElement/BookListElement";
 import BookRedactor from "./BookRedactor/BookRedactor";
@@ -18,7 +23,7 @@ const BookList = () => {
             <section className={cl.main__sectionsWrap}>
                 <section className={cl.sectionsWrap__filter}>
                     <p className={cl.filter__p}>Filter By:</p>
-                    <section className={booksSlice.isLibraryReceived === "pending"
+                    <section className={booksSlice.requestStatuses.isLibraryReceived === "pending"
                         ? cl.filter__options__pending
                         : cl.filter__options}>
                         <button className={booksSlice.chosenFilter === "year" ? cl.chosen : ""}
@@ -39,6 +44,7 @@ const BookList = () => {
                     <button onClick={() => {
                         dispatch(updateIsAddBookMenuVisible())
                     }}>ADD BOOK</button>
+                    <p>CURRENTLY {booksSlice.books ? booksSlice.books.length : ""} BOOKS</p>
                 </section>
                 {
                     booksSlice.books
@@ -47,7 +53,10 @@ const BookList = () => {
                 }
                 {
                     booksSlice.isAddBookMenuVisible
-                        ? <BookRedactor/>
+                        ? <BookRedactor buttonName={"Submit"}
+                                        menuSwitcher={updateIsAddBookMenuVisible}
+                                        submitFunction={addBookToLibrary}
+                        />
                         : ""
                 }
             </section>

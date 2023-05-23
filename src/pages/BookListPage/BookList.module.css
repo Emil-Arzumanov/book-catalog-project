@@ -77,3 +77,7 @@
 .sectionsWrap__addBook button:hover {
     border: 3px solid #26a9e0;
 }
+.sectionsWrap__addBook p {
+    font-weight: bold;
+    color: #26a9e0;
+}
