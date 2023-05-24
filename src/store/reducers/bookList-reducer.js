@@ -1,17 +1,47 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import { getDocs, collection, addDoc, doc, updateDoc, deleteDoc, orderBy, query } from "firebase/firestore";
 import {db} from "../../config/firebase-config";
+import {findRecommended} from "../../helpers/helpers";
 
 export const getBooksForLibrary = createAsyncThunk(
     "books/getBooks",
     async ({filter},thunkAPI) => {
         try {
-            const booksQuery = query(collection(db, 'books'), orderBy(filter, "desc"));
+            let booksQuery;
+            if (filter === "authors") {
+                booksQuery = query(collection(db, 'books'), orderBy(filter, "asc"));
+            } else {
+                booksQuery = query(collection(db, 'books'), orderBy(filter, "desc"));
+            }
             const data = await getDocs(booksQuery);
             const response = data.docs.map((elem) => {
                 return {...elem.data(), id: elem.id}
             });
             thunkAPI.dispatch(updateFilter(filter))
+            return response;
+        } catch (error) {
+            const message =
+                (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                error.message ||
+                error.toString();
+            console.log(error);
+            return thunkAPI.rejectWithValue(message);
+        }
+    }
+)
+
+export const getRecommendedBookForLibrary = createAsyncThunk(
+    "books/getRecommendedBook",
+    async ({},thunkAPI) => {
+        try {
+            const booksQuery = query(collection(db, 'books'), orderBy("rating", "desc"));
+            const data = await getDocs(booksQuery);
+            const responseArray = data.docs.map((elem) => {
+                return {...elem.data(), id: elem.id}
+            });
+            const response = findRecommended(responseArray);
             return response;
         } catch (error) {
             const message =
@@ -38,6 +68,7 @@ export const addBookToLibrary = createAsyncThunk(
                 releaseDate,
                 title
             });
+            thunkAPI.dispatch(getRecommendedBookForLibrary({}));
             thunkAPI.dispatch(getBooksForLibrary({filter: filter}));
         } catch (error) {
             const message =
@@ -64,6 +95,7 @@ export const editBookFromLibrary = createAsyncThunk(
                 rating,
                 ISBN
             });
+            thunkAPI.dispatch(getRecommendedBookForLibrary({}));
             thunkAPI.dispatch(getBooksForLibrary({filter: filter}));
         } catch (error) {
             const message =
@@ -83,6 +115,7 @@ export const deleteBookFromLibrary = createAsyncThunk(
     async ({id,filter}, thunkAPI) => {
         try {
             await deleteDoc(doc(db, "books", id));
+            thunkAPI.dispatch(getRecommendedBookForLibrary({}));
             thunkAPI.dispatch(getBooksForLibrary({filter: filter}));
         } catch (error) {
             const message =
@@ -103,7 +136,9 @@ const bookListSlice = createSlice({
     initialState: {
         requestStatuses: {
             isLibraryReceived: false,
+            isRecommendedReceived: false,
         },
+        recommendedBook: null,
         books: null,
         chosenFilter: "releaseDate",
         isAddBookMenuVisible: false,
@@ -137,6 +172,17 @@ const bookListSlice = createSlice({
         builder.addCase(getBooksForLibrary.rejected, (state) => {
             state.books = null;
             state.requestStatuses.isLibraryReceived = "rejected";
+        })
+        builder.addCase(getRecommendedBookForLibrary.fulfilled, (state, action) => {
+            state.recommendedBook = action.payload;
+            state.requestStatuses.isRecommendedReceived = "fulfilled";
+        })
+        builder.addCase(getRecommendedBookForLibrary.pending, (state) => {
+            state.requestStatuses.isRecommendedReceived = "pending";
+        })
+        builder.addCase(getRecommendedBookForLibrary.rejected, (state) => {
+            state.books = null;
+            state.requestStatuses.isRecommendedReceived = "rejected";
         })
     },
 })

@@ -1,3 +1,18 @@
+export const findRecommended = (dataArr) => {
+    let forRandomArr = [];
+    const theeYearsAgoDate = new Date().getFullYear() - 3;
+    for (let i=0;i < dataArr.length; i++) {
+        if (dataArr[i].releaseDate > theeYearsAgoDate) continue;
+        if (forRandomArr.length === 0) forRandomArr.push(dataArr[i]);
+        if (dataArr[i] === dataArr[i-1]) {
+            forRandomArr.push(dataArr[i]);
+        }
+    }
+    console.log(forRandomArr);
+    const randomIndex = Math.floor(Math.random() * forRandomArr.length);
+    return forRandomArr[randomIndex];
+}
+
 export const validateISBN = (ISBN) => {
     if (ISBN.length === 0) return true
     let data = (ISBN+"").replace(/-/g, "").split("").reverse().join("");
