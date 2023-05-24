@@ -2,7 +2,7 @@ import React from 'react';
 import book from "../../../imgs/bookImg.png";
 import {useDispatch, useSelector} from "react-redux";
 import cl from "./BookListElement.module.css";
-import BookRedactor from "../BookRedactor/BookRedactor";
+import BookMenu from "../BookMenu/BookMenu";
 import {
     deleteBookFromLibrary,
     editBookFromLibrary,
@@ -30,11 +30,11 @@ const BookListElement = () => {
                                                     return <div key={author}>{author}</div>
                                                 })}
                                             </div>
-                                            <p>Year: {elem.releaseDate}</p>
+                                            <p>Year: {elem.releaseDate ? elem.releaseDate : "No data"}</p>
                                         </section>
                                         <section className={cl.mainWrap__sectionWrap}>
                                             <p>Rating: {elem.rating}</p>
-                                            <p>ISBN: {elem.ISBN}</p>
+                                            <p>ISBN: {elem.ISBN ? elem.ISBN : "No data"}</p>
                                         </section>
                                     </div>
                                 </div>
@@ -49,9 +49,9 @@ const BookListElement = () => {
                             </section>
                             {
                                 booksSlice.isEditBookMenuVisible
-                                    ? <BookRedactor buttonName={"Edit"}
-                                                    menuSwitcher={updateIsEditBookMenuVisible}
-                                                    submitFunction={editBookFromLibrary}
+                                    ? <BookMenu buttonName={"Edit"}
+                                                menuSwitcher={updateIsEditBookMenuVisible}
+                                                submitFunction={editBookFromLibrary}
                                     />
                                     : ""
                             }

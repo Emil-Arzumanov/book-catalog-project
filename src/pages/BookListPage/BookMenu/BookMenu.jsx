@@ -1,10 +1,10 @@
 import React from 'react';
-import cl from "./BookRedactor.module.css";
+import cl from "./BookMenu.module.css";
 import {useDispatch, useSelector} from "react-redux";
 import {Formik} from "formik";
-import {checkIfBookAlreadyExists} from "../../../helpers/helpers";
+import {validateISBN} from "../../../helpers/helpers";
 
-const BookRedactor = ({submitFunction, buttonName, menuSwitcher}) => {
+const BookMenu = ({submitFunction, buttonName, menuSwitcher}) => {
     const booksSlice = useSelector((state) => state.books);
     const elementData = booksSlice.currentlyEditingBookData;
     const dispatch = useDispatch();
@@ -37,25 +37,23 @@ const BookRedactor = ({submitFunction, buttonName, menuSwitcher}) => {
                         if (values.rating < 0 || values.rating > 10) {
                             errors.rating = 'Must be a number from 0 to 10';
                         }
+                        if (!validateISBN(values.ISBN)) {
+                            errors.ISBN = 'Invalid ISBN!';
+                        }
                         return errors;
                     }}
                     onSubmit={(values, {setSubmitting}) => {
-                        if (!elementData && checkIfBookAlreadyExists(values.title,booksSlice.books)) {
-                            alert("Book with this title already exists")
-                            setSubmitting(false);
-                        } else {
-                            let authorsArray = values.authors.split(",");
-                            dispatch(submitFunction({
-                                id: elementData ? elementData.id : null,
-                                title: values.title,
-                                authors: authorsArray,
-                                releaseDate: values.year,
-                                rating: values.rating,
-                                ISBN: values.ISBN
-                            }))
-                            dispatch(menuSwitcher())
-                            setSubmitting(false);
-                        }
+                        let authorsArray = values.authors.split(",");
+                        dispatch(submitFunction({
+                            id: elementData ? elementData.id : null,
+                            title: values.title,
+                            authors: authorsArray,
+                            releaseDate: values.year,
+                            rating: values.rating ? values.rating : 0,
+                            ISBN: values.ISBN
+                        }))
+                        dispatch(menuSwitcher())
+                        setSubmitting(false);
                     }}
                 >
                     {({values, errors, handleChange, handleSubmit, isSubmitting}) => (
@@ -112,7 +110,7 @@ const BookRedactor = ({submitFunction, buttonName, menuSwitcher}) => {
                                         />
                                         <span>{errors.rating}</span>
                                     </div>
-                                    <div>
+                                    <div className={cl.right__ISBN}>
                                         <p>ISBN</p>
                                         <input
                                             type="ISBN"
@@ -122,6 +120,7 @@ const BookRedactor = ({submitFunction, buttonName, menuSwitcher}) => {
                                             className={errors.ISBN ? cl.input__error : ""}
                                         />
                                         <span>{errors.ISBN}</span>
+                                        <p>Example: 9798821093264 or 0140280197</p>
                                     </div>
                                 </div>
                             </div>
@@ -139,4 +138,4 @@ const BookRedactor = ({submitFunction, buttonName, menuSwitcher}) => {
     );
 };
 
-export default BookRedactor;
+export default BookMenu;

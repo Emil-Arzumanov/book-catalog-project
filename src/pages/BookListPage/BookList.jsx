@@ -8,7 +8,7 @@ import {
 } from "../../store/reducers/bookList-reducer";
 import cl from "./BookList.module.css"
 import BookListElement from "./BookListElement/BookListElement";
-import BookRedactor from "./BookRedactor/BookRedactor";
+import BookMenu from "./BookMenu/BookMenu";
 
 const BookList = () => {
     const booksSlice = useSelector((state) => state.books);
@@ -53,9 +53,9 @@ const BookList = () => {
                 }
                 {
                     booksSlice.isAddBookMenuVisible
-                        ? <BookRedactor buttonName={"Submit"}
-                                        menuSwitcher={updateIsAddBookMenuVisible}
-                                        submitFunction={addBookToLibrary}
+                        ? <BookMenu buttonName={"Submit"}
+                                    menuSwitcher={updateIsAddBookMenuVisible}
+                                    submitFunction={addBookToLibrary}
                         />
                         : ""
                 }
