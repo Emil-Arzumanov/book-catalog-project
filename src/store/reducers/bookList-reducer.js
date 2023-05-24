@@ -1,17 +1,17 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import { getDocs, collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { getDocs, collection, addDoc, doc, updateDoc, deleteDoc, orderBy, query } from "firebase/firestore";
 import {db} from "../../config/firebase-config";
-
-const booksCollection = collection(db, 'books');
 
 export const getBooksForLibrary = createAsyncThunk(
     "books/getBooks",
-    async ({},thunkAPI) => {
+    async ({filter},thunkAPI) => {
         try {
-            const data = await getDocs(booksCollection);
+            const booksQuery = query(collection(db, 'books'), orderBy(filter, "desc"));
+            const data = await getDocs(booksQuery);
             const response = data.docs.map((elem) => {
                 return {...elem.data(), id: elem.id}
             });
+            thunkAPI.dispatch(updateFilter(filter))
             return response;
         } catch (error) {
             const message =
@@ -20,7 +20,7 @@ export const getBooksForLibrary = createAsyncThunk(
                     error.response.data.message) ||
                 error.message ||
                 error.toString();
-            console.log(message);
+            console.log(error);
             return thunkAPI.rejectWithValue(message);
         }
     }
@@ -28,8 +28,9 @@ export const getBooksForLibrary = createAsyncThunk(
 
 export const addBookToLibrary = createAsyncThunk(
     "books/addBook",
-    async ({id,title,authors,releaseDate,rating,ISBN}, thunkAPI) => {
+    async ({id,title,authors,releaseDate,rating,ISBN,filter}, thunkAPI) => {
         try {
+            const booksCollection = collection(db, 'books')
             await addDoc(booksCollection, {
                 ISBN,
                 authors,
@@ -37,7 +38,7 @@ export const addBookToLibrary = createAsyncThunk(
                 releaseDate,
                 title
             });
-            thunkAPI.dispatch(getBooksForLibrary({}));
+            thunkAPI.dispatch(getBooksForLibrary({filter: filter}));
         } catch (error) {
             const message =
                 (error.response &&
@@ -45,7 +46,7 @@ export const addBookToLibrary = createAsyncThunk(
                     error.response.data.message) ||
                 error.message ||
                 error.toString();
-            console.log(message);
+            console.log(error);
             return thunkAPI.rejectWithValue(message);
         }
     }
@@ -53,7 +54,7 @@ export const addBookToLibrary = createAsyncThunk(
 
 export const editBookFromLibrary = createAsyncThunk(
     "books/editBook",
-    async ({id,title,authors,releaseDate,rating,ISBN}, thunkAPI) => {
+    async ({id,title,authors,releaseDate,rating,ISBN,filter}, thunkAPI) => {
         try {
             const bookRef = doc(db, "books", id);
             await updateDoc(bookRef, {
@@ -63,7 +64,7 @@ export const editBookFromLibrary = createAsyncThunk(
                 rating,
                 ISBN
             });
-            thunkAPI.dispatch(getBooksForLibrary({}));
+            thunkAPI.dispatch(getBooksForLibrary({filter: filter}));
         } catch (error) {
             const message =
                 (error.response &&
@@ -71,7 +72,7 @@ export const editBookFromLibrary = createAsyncThunk(
                     error.response.data.message) ||
                 error.message ||
                 error.toString();
-            console.log(message);
+            console.log(error);
             return thunkAPI.rejectWithValue(message);
         }
     }
@@ -79,10 +80,10 @@ export const editBookFromLibrary = createAsyncThunk(
 
 export const deleteBookFromLibrary = createAsyncThunk(
     "books/deleteBook",
-    async ({id}, thunkAPI) => {
+    async ({id,filter}, thunkAPI) => {
         try {
             await deleteDoc(doc(db, "books", id));
-            thunkAPI.dispatch(getBooksForLibrary({}));
+            thunkAPI.dispatch(getBooksForLibrary({filter: filter}));
         } catch (error) {
             const message =
                 (error.response &&
@@ -90,7 +91,7 @@ export const deleteBookFromLibrary = createAsyncThunk(
                     error.response.data.message) ||
                 error.message ||
                 error.toString();
-            console.log(message);
+            console.log(error);
             return thunkAPI.rejectWithValue(message);
         }
     }
@@ -102,20 +103,16 @@ const bookListSlice = createSlice({
     initialState: {
         requestStatuses: {
             isLibraryReceived: false,
-            isBookCreated: false,
-            isBookEdited: false,
-            isBookDeleted: false,
         },
         books: null,
-        chosenFilter: "year",
+        chosenFilter: "releaseDate",
         isAddBookMenuVisible: false,
         isEditBookMenuVisible: false,
         currentlyEditingBookData: null
     },
     reducers: {
         updateFilter(state, action) {
-            if (state.requestStatuses.isLibraryReceived === "fulfilled")
-                state.chosenFilter = action.payload;
+            state.chosenFilter = action.payload;
         },
         updateIsAddBookMenuVisible(state) {
             state.isAddBookMenuVisible = ! state.isAddBookMenuVisible;
@@ -132,41 +129,14 @@ const bookListSlice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(getBooksForLibrary.fulfilled, (state, action) => {
             state.books = action.payload;
-            state.isLibraryReceived = "fulfilled";
+            state.requestStatuses.isLibraryReceived = "fulfilled";
         })
         builder.addCase(getBooksForLibrary.pending, (state) => {
-            state.isLibraryReceived = "pending";
+            state.requestStatuses.isLibraryReceived = "pending";
         })
         builder.addCase(getBooksForLibrary.rejected, (state) => {
             state.books = null;
-            state.isLibraryReceived = "rejected";
-        })
-        builder.addCase(addBookToLibrary.fulfilled, (state, action) => {
-            state.isBookCreated = "fulfilled";
-        })
-        builder.addCase(addBookToLibrary.pending, (state) => {
-            state.isBookCreated = "pending";
-        })
-        builder.addCase(addBookToLibrary.rejected, (state) => {
-            state.isBookCreated = "rejected";
-        })
-        builder.addCase(editBookFromLibrary.fulfilled, (state, action) => {
-            state.isBookEdited = "fulfilled";
-        })
-        builder.addCase(editBookFromLibrary.pending, (state) => {
-            state.isBookEdited = "pending";
-        })
-        builder.addCase(editBookFromLibrary.rejected, (state) => {
-            state.isBookEdited = "rejected";
-        })
-        builder.addCase(deleteBookFromLibrary.fulfilled, (state, action) => {
-            state.isBookDeleted = "fulfilled";
-        })
-        builder.addCase(deleteBookFromLibrary.pending, (state) => {
-            state.isBookDeleted = "pending";
-        })
-        builder.addCase(deleteBookFromLibrary.rejected, (state) => {
-            state.isBookDeleted = "rejected";
+            state.requestStatuses.isLibraryReceived = "rejected";
         })
     },
 })

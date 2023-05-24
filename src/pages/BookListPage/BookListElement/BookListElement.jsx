@@ -25,11 +25,7 @@ const BookListElement = () => {
                                     <h2>{elem.title}</h2>
                                     <div className={cl.info__mainWrap}>
                                         <section className={cl.mainWrap__sectionWrap}>
-                                            <div className={cl.sectionWrap__authors}>Authors:
-                                                {elem.authors.map((author) => {
-                                                    return <div key={author}>{author}</div>
-                                                })}
-                                            </div>
+                                            <div className={cl.sectionWrap__authors}>Authors: {elem.authors}</div>
                                             <p>Year: {elem.releaseDate ? elem.releaseDate : "No data"}</p>
                                         </section>
                                         <section className={cl.mainWrap__sectionWrap}>
@@ -43,7 +39,7 @@ const BookListElement = () => {
                                         dispatch(updateIsEditBookMenuVisible(elem))
                                     }}>Edit</button>
                                     <button onClick={() => {
-                                        dispatch(deleteBookFromLibrary({id: elem.id}))
+                                        dispatch(deleteBookFromLibrary({id: elem.id,filter: booksSlice.chosenFilter}))
                                     }}>Delete</button>
                                 </div>
                             </section>

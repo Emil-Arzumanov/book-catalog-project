@@ -15,7 +15,7 @@ const BookMenu = ({submitFunction, buttonName, menuSwitcher}) => {
                 <Formik
                     initialValues={{
                         title: elementData ? elementData.title : "",
-                        authors: elementData ? elementData.authors.join(",") : "",
+                        authors: elementData ? elementData.authors : "",
                         year: elementData ? elementData.releaseDate : "",
                         rating: elementData ? elementData.rating : 0,
                         ISBN: elementData ? elementData.ISBN : ""
@@ -43,14 +43,14 @@ const BookMenu = ({submitFunction, buttonName, menuSwitcher}) => {
                         return errors;
                     }}
                     onSubmit={(values, {setSubmitting}) => {
-                        let authorsArray = values.authors.split(",");
                         dispatch(submitFunction({
                             id: elementData ? elementData.id : null,
                             title: values.title,
-                            authors: authorsArray,
-                            releaseDate: values.year,
+                            authors: values.authors,
+                            releaseDate: values.year ? values.year : 0,
                             rating: values.rating ? values.rating : 0,
-                            ISBN: values.ISBN
+                            ISBN: values.ISBN,
+                            filter: booksSlice.chosenFilter
                         }))
                         dispatch(menuSwitcher())
                         setSubmitting(false);

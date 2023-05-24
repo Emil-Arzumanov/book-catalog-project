@@ -3,7 +3,6 @@ import {useDispatch, useSelector} from "react-redux";
 import {
     addBookToLibrary,
     getBooksForLibrary,
-    updateFilter,
     updateIsAddBookMenuVisible
 } from "../../store/reducers/bookList-reducer";
 import cl from "./BookList.module.css"
@@ -15,8 +14,8 @@ const BookList = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(getBooksForLibrary({}))
-    },[booksSlice.chosenFilter])
+        dispatch(getBooksForLibrary({filter:"releaseDate"}))
+    },[])
 
     return (
         <main className={cl.main}>
@@ -26,17 +25,20 @@ const BookList = () => {
                     <section className={booksSlice.requestStatuses.isLibraryReceived === "pending"
                         ? cl.filter__options__pending
                         : cl.filter__options}>
-                        <button className={booksSlice.chosenFilter === "year" ? cl.chosen : ""}
+                        <button className={booksSlice.chosenFilter === "releaseDate" ? cl.chosen : ""}
                                 onClick={() => {
-                                    dispatch(updateFilter("year"))
+                                    if(booksSlice.chosenFilter !== "releaseDate")
+                                        dispatch(getBooksForLibrary({filter:"releaseDate"}))
                                 }}>YEAR</button>
-                        <button className={booksSlice.chosenFilter === "author" ? cl.chosen : ""}
+                        <button className={booksSlice.chosenFilter === "authors" ? cl.chosen : ""}
                                 onClick={() => {
-                                    dispatch(updateFilter("author"))
+                                    if(booksSlice.chosenFilter !== "authors")
+                                        dispatch(getBooksForLibrary({filter:"authors"}))
                                 }}>AUTHOR</button>
                         <button className={booksSlice.chosenFilter === "rating" ? cl.chosen : ""}
                                 onClick={() => {
-                                    dispatch(updateFilter("rating"))
+                                    if(booksSlice.chosenFilter !== "rating")
+                                        dispatch(getBooksForLibrary({filter:"rating"}))
                                 }}>RATING</button>
                     </section>
                 </section>
