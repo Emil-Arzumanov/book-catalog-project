@@ -1,7 +1,7 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import { getDocs, collection, addDoc, doc, updateDoc, deleteDoc, orderBy, query } from "firebase/firestore";
 import {db} from "../../config/firebase-config";
-import {findRecommended} from "../../helpers/helpers";
+import {findRecommended, sortBooksByAlphabet} from "../../helpers/helpers";
 
 export const getBooksForLibrary = createAsyncThunk(
     "books/getBooks",
@@ -17,8 +17,9 @@ export const getBooksForLibrary = createAsyncThunk(
             const response = data.docs.map((elem) => {
                 return {...elem.data(), id: elem.id}
             });
+            const sortedResponse = sortBooksByAlphabet(filter, response);
             thunkAPI.dispatch(updateFilter(filter))
-            return response;
+            return sortedResponse;
         } catch (error) {
             const message =
                 (error.response &&

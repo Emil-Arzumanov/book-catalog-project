@@ -2,15 +2,45 @@ export const findRecommended = (dataArr) => {
     let forRandomArr = [];
     const theeYearsAgoDate = new Date().getFullYear() - 3;
     for (let i=0;i < dataArr.length; i++) {
-        if (dataArr[i].releaseDate > theeYearsAgoDate) continue;
-        if (forRandomArr.length === 0) forRandomArr.push(dataArr[i]);
-        if (dataArr[i] === dataArr[i-1]) {
+        if (dataArr[i].releaseDate > theeYearsAgoDate || dataArr[i].releaseDate === 0) continue;
+        if (forRandomArr.length === 0) {
+            forRandomArr.push(dataArr[i])
+        } else if (dataArr[i].rating === dataArr[i-1].rating) {
             forRandomArr.push(dataArr[i]);
-        }
+        } else break;
     }
-    console.log(forRandomArr);
     const randomIndex = Math.floor(Math.random() * forRandomArr.length);
     return forRandomArr[randomIndex];
+}
+
+export const sortBooksByAlphabet = (filter,dataArr) => {
+    let resultArr = [];
+    let tempArr = [];
+
+    function compare( a, b ) {
+        if ( a.title < b.title ){
+            return -1;
+        }
+        if ( a.title > b.title ){
+            return 1;
+        }
+        return 0;
+    }
+
+    for (let i=0;i < dataArr.length; i++) {
+        if (i === 0) {
+            tempArr.push(dataArr[i])
+        } else if (dataArr[i-1][filter] === dataArr[i][filter]) {
+            tempArr.push(dataArr[i])
+        } else {
+            resultArr.push(tempArr.sort(compare));
+            tempArr = [dataArr[i]];
+        }
+        if (i === dataArr.length - 1) {
+            resultArr.push(tempArr.sort(compare));
+        }
+    }
+    return resultArr;
 }
 
 export const validateISBN = (ISBN) => {

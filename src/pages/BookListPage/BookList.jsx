@@ -72,7 +72,6 @@ const BookList = () => {
                     <button onClick={() => {
                         dispatch(updateIsAddBookMenuVisible())
                     }}>ADD BOOK</button>
-                    <p>CURRENTLY {booksSlice.books ? booksSlice.books.length : ""} BOOKS</p>
                 </section>
                 {
                     booksSlice.books

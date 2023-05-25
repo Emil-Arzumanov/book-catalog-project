@@ -31,7 +31,7 @@ const BookMenu = ({submitFunction, buttonName, menuSwitcher}) => {
                         if (!values.authors) {
                             errors.authors = 'At least one author is required';
                         }
-                        if (values.year < 1800 && values.year !== "") {
+                        if (values.year < 1800 && values.year !== "" && values.year !== 0) {
                             errors.year = 'Not earlier than 1800';
                         }
                         if (values.rating < 0 || values.rating > 10) {

@@ -1,3 +1,7 @@
+.element__filter {
+    color: #26a9e0;
+    font-weight: bold;
+}
 .list__element {
     position: relative;
     width: 100%;
